@@ -2,9 +2,15 @@
 import requests
 import json
 import os
+import sys
 
-user = 'roll number'
-pwd = 'password'
+
+if len(sys.argv) < 3:
+	print 'Usage: python notify.py username password'
+	sys.exit(0)
+
+
+user,pwd = sys.argv[1:3]
 
 ses = requests.session()
 response = ses.post('https://rembook.nitt.edu/login', data = {'username' : user, 'password' : pwd})
@@ -23,7 +29,7 @@ try:
 	for entry in jsondata['notifications']:
 		if 'wrote' in entry['message']:
 			name =  entry['message'][:entry['message'].find('wrote')-1]
-			if name not in exists:
+			if name not in exists and name not in names:
 				fileObj.write(name+'\n')
 				newOnes+=1
 				names.append(name)
@@ -34,3 +40,5 @@ try:
 
 except Exception as e:
 	print 'Exception : {}'.format(e)
+finally:
+	ses.close()
